@@ -7,7 +7,6 @@ const int BTN_PIN_R = 28;
 const int LED_PIN_R = 4;
 
 volatile int flag_f_r = 0;
-volatile bool timer_running = false;
 volatile bool led_state = false;
 struct repeating_timer timer;
 
@@ -27,13 +26,15 @@ int main() {
     stdio_init_all();
     gpio_init(LED_PIN_R);
     gpio_set_dir(LED_PIN_R, GPIO_OUT);
-    gpio_put(LED_PIN_R, false); 
+    gpio_put(LED_PIN_R, false); // começa apagado
 
     gpio_init(BTN_PIN_R);
     gpio_set_dir(BTN_PIN_R, GPIO_IN);
     gpio_pull_up(BTN_PIN_R);
 
     gpio_set_irq_enabled_with_callback(BTN_PIN_R, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
+
+    static bool timer_running = false; // agora local e static
 
     while (true) {
         if (flag_f_r) {

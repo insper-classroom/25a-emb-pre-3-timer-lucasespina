@@ -12,22 +12,18 @@ const int LED_PIN_G = 6;
 volatile int flag_r = 0;
 volatile int flag_g = 0;
 
-volatile bool timer_running_r = false;
-volatile bool timer_running_g = false;
-
-volatile bool led_state_r = false;
-volatile bool led_state_g = false;
-
 struct repeating_timer timer_r;
 struct repeating_timer timer_g;
 
 bool timer_callback_r(struct repeating_timer *t) {
+    static bool led_state_r = false;
     led_state_r = !led_state_r;
     gpio_put(LED_PIN_R, led_state_r);
     return true;
 }
 
 bool timer_callback_g(struct repeating_timer *t) {
+    static bool led_state_g = false;
     led_state_g = !led_state_g;
     gpio_put(LED_PIN_G, led_state_g);
     return true;
@@ -64,6 +60,9 @@ int main() {
     gpio_set_irq_enabled_with_callback(BTN_PIN_R, GPIO_IRQ_EDGE_FALL, true, &btn_callback);
     gpio_set_irq_enabled(BTN_PIN_G, GPIO_IRQ_EDGE_FALL, true);
 
+    static bool timer_running_r = false;
+    static bool timer_running_g = false;
+
     while (true) {
         if (flag_r) {
             flag_r = 0;
@@ -74,7 +73,6 @@ int main() {
                 cancel_repeating_timer(&timer_r);
                 timer_running_r = false;
                 gpio_put(LED_PIN_R, false);
-                led_state_r = false;
             }
         }
 
@@ -87,7 +85,6 @@ int main() {
                 cancel_repeating_timer(&timer_g);
                 timer_running_g = false;
                 gpio_put(LED_PIN_G, false);
-                led_state_g = false;
             }
         }
     }
